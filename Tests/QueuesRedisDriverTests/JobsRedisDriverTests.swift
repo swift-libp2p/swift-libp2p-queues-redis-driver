@@ -34,8 +34,10 @@ struct JobsRedisDriverTests {
     /// This defaults to `localhost:6379`
     /// - Note: Our PR workflow sets the `REDIS_HOSTNAME` and `REDIS_PORT` ENV values
     static var redisHost: String {
-        let port = ProcessInfo.processInfo.environment["REDIS_PORT"] ?? "6379"
-        return "\(hostname):\(port)"
+        //let host = ProcessInfo.processInfo.environment["REDIS_HOSTNAME"] ?? "redis://localhost"
+        //let port = ProcessInfo.processInfo.environment["REDIS_PORT"] ?? "6379"
+        //return "\(host):\(port)"
+        return "redis://localhost:6379"
     }
 
     /// Ensures that a sample job runs on our asyncTest driver
