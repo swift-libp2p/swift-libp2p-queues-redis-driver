@@ -37,7 +37,7 @@ struct JobsRedisDriverTests {
         //let host = ProcessInfo.processInfo.environment["REDIS_HOSTNAME"] ?? "redis://localhost"
         //let port = ProcessInfo.processInfo.environment["REDIS_PORT"] ?? "6379"
         //return "\(host):\(port)"
-        return "redis://localhost:6379"
+        "redis://localhost:6379"
     }
 
     /// Ensures that a sample job runs on our asyncTest driver
