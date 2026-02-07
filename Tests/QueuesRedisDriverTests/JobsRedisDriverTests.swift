@@ -74,7 +74,7 @@ struct JobsRedisDriverTests {
         let email = Email()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: redisHost))
+            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             app.queues.add(email)
 
             app.on("send-email") { req -> Response<String> in
@@ -106,7 +106,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: redisHost))
+            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             app.queues.add(failedJob)
 
             app.on("test") { req -> Response<String> in
@@ -144,7 +144,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: redisHost))
+            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             app.queues.add(DelayedJob())
 
             app.on("delay-job") { req -> Response<String> in
@@ -184,7 +184,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: redisHost))
+            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             app.queues.add(DelayedJob())
 
             app.on("delay-job") { req -> Response<String> in
