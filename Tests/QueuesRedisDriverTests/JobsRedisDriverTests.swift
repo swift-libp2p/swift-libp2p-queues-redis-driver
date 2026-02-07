@@ -31,6 +31,13 @@ import struct Redis.RedisKey
 @Suite("Jobs Redis Driver Tests", .serialized)
 struct JobsRedisDriverTests {
 
+    /// This defaults to `localhost:6379`
+    /// - Note: Our PR workflow sets the `REDIS_HOSTNAME` and `REDIS_PORT` ENV values
+    static var redisHost: String {
+        let port = ProcessInfo.processInfo.environment["REDIS_PORT"] ?? "6379"
+        return "\(hostname):\(port)"
+    }
+
     /// Ensures that a sample job runs on our asyncTest driver
     @Test func testApplication_TestDriver() async throws {
         let email = Email()
@@ -67,7 +74,7 @@ struct JobsRedisDriverTests {
         let email = Email()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: "redis://\(hostname):6379"))
+            try app.queues.use(.redis(url: redisHost))
             app.queues.add(email)
 
             app.on("send-email") { req -> Response<String> in
@@ -99,7 +106,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: "redis://\(hostname):6379"))
+            try app.queues.use(.redis(url: redisHost))
             app.queues.add(failedJob)
 
             app.on("test") { req -> Response<String> in
@@ -137,7 +144,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: "redis://\(hostname):6379"))
+            try app.queues.use(.redis(url: redisHost))
             app.queues.add(DelayedJob())
 
             app.on("delay-job") { req -> Response<String> in
@@ -177,7 +184,7 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: "redis://\(hostname):6379"))
+            try app.queues.use(.redis(url: redisHost))
             app.queues.add(DelayedJob())
 
             app.on("delay-job") { req -> Response<String> in
