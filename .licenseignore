@@ -7,3 +7,5 @@ Package.swift
 .swift-format
 .licenseignore
 .license_header_template
+.github/redis1.conf
+.github/redis2.conf
