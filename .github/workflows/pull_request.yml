@@ -7,10 +7,8 @@ on:
 
 env:
   LOG_LEVEL: info
-  REDIS_HOSTNAME: redis
+  REDIS_HOSTNAME: localhost
   REDIS_PORT: 6379
-  REDIS_HOSTNAME_2: redis-2
-  REDIS_PORT_2: 6379
 
 jobs:
   soundness:
@@ -39,8 +37,6 @@ jobs:
     container: ${{ matrix.container }}
     services:
       redis:
-        image: ${{ matrix.redis }}
-      redis-2:
         image: ${{ matrix.redis }}
     steps:
       - name: Check out package
@@ -75,8 +71,6 @@ jobs:
       # run: brew services start redis
       - name: Start First Redis Server
         run: redis-server .github/redis1.conf
-      - name: Start Second Redis Server
-        run: redis-server .github/redis2.conf
       # Test in debug mode
       - name: Test Debug
         run: swift test
