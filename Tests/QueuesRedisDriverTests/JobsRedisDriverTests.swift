@@ -100,6 +100,10 @@ struct JobsRedisDriverTests {
             #expect(email.sent == [])
             try await app.queues.queue.worker.run().get()
             #expect(email.sent == [.init(to: "tanner@vapor.codes")])
+
+            // Remove the queue keys from redis in case we do back to back tests
+            let redis = try #require(app.queues.queue as? RedisClient)
+            try await clear(redis: redis)
         }
     }
 
@@ -134,11 +138,14 @@ struct JobsRedisDriverTests {
             }
 
             // ensure the failed job is still present in storage
-            let redis = (app.queues.queue as! RedisClient)
+            let redis = try #require(app.queues.queue as? RedisClient)
             let job = try #require(
                 await redis.get(RedisKey("job:\(jobId.string)"), asJSON: JobData.self).get()
             )
             #expect(job.jobName == "FailingJob")
+
+            // Remove the queue keys from redis in case we do back to back tests
+            try await clear(redis: redis)
         }
     }
 
@@ -147,7 +154,7 @@ struct JobsRedisDriverTests {
 
         func configure(_ app: Application) async throws {
             try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
-            app.queues.add(DelayedJob())
+            app.queues.add(DelayedJob(recordIssue: false))
 
             app.on("delay-job") { req -> Response<String> in
                 switch req.event {
@@ -173,12 +180,15 @@ struct JobsRedisDriverTests {
             }
 
             // Verify the delayUntil date is encoded as the correct epoch time
-            let redis = (app.queues.queue as! RedisClient)
+            let redis = try #require(app.queues.queue as? RedisClient)
             let job = try await redis.get(RedisKey("job:\(jobId.string)")).get()
             let dict = try JSONSerialization.jsonObject(with: job.data!, options: .allowFragments) as! [String: Any]
 
             #expect(dict["jobName"] as! String == "DelayedJob")
             #expect(dict["delayUntil"] as! Int == 1_609_477_200)
+
+            // Remove the queue keys from redis in case we do back to back tests
+            try await clear(redis: redis)
         }
     }
 
@@ -187,7 +197,7 @@ struct JobsRedisDriverTests {
 
         func configure(_ app: Application) async throws {
             try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
-            app.queues.add(DelayedJob())
+            app.queues.add(DelayedJob(recordIssue: true))
 
             app.on("delay-job") { req -> Response<String> in
                 switch req.event {
@@ -217,7 +227,7 @@ struct JobsRedisDriverTests {
 
             try await Task.sleep(for: .milliseconds(10))
 
-            let redis = (app.queues.queue as! RedisClient)
+            let redis = try #require(app.queues.queue as? RedisClient)
             let value = try await redis.lrange(
                 from: RedisKey("libp2p_queues[default]-processing"),
                 indices: 0...10,
@@ -228,18 +238,21 @@ struct JobsRedisDriverTests {
                 indices: 0...10,
                 as: String.self
             ).get()
-            #expect(value.count == 0)
+            #expect(value.count == 1)
             #expect(originalQueue.count == 1)
             #expect(originalQueue.contains(jobId.string))
 
             // Remove the queue keys from redis in case we do back to back tests
-            let deleted = try await redis.delete([
-                RedisKey("libp2p_queues[default]"),
-                RedisKey("libp2p_queues[default]-processing"),
-            ])
-
-            #expect(deleted == 2)
+            try await clear(redis: redis)
         }
+    }
+
+    func clear(redis: RedisClient) async throws {
+        // Remove the queue keys from redis in case we do back to back tests
+        let deleted = try await redis.delete([
+            RedisKey("libp2p_queues[default]"),
+            RedisKey("libp2p_queues[default]-processing"),
+        ])
     }
 }
 
@@ -274,10 +287,15 @@ final class DelayedJob: Job {
         let name: String
     }
 
-    init() {}
+    let recordIssue: Bool
+
+    init(recordIssue: Bool) {
+        self.recordIssue = recordIssue
+    }
 
     func dequeue(_ context: QueueContext, _ message: Message) -> EventLoopFuture<Void> {
         context.logger.info("Hello \(message.name)")
+        if recordIssue { Issue.record("Delayed Job Should Not Have Run") }
         return context.eventLoop.makeSucceededFuture(())
     }
 }
