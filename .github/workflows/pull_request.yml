@@ -7,7 +7,7 @@ on:
 
 env:
   LOG_LEVEL: info
-  REDIS_HOSTNAME: localhost
+  REDIS_HOSTNAME: redis
   REDIS_PORT: 6379
 
 jobs:
