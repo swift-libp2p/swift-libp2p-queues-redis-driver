@@ -335,3 +335,7 @@ struct FailingJob: Job {
         context.eventLoop.makeFailedFuture(Failure())
     }
 }
+
+extension String {
+    var int: Int? { Int(self) }
+}
