@@ -45,6 +45,9 @@ let package = Package(
 
 ## Usage
 
+### Vapor Queues Documentation
+check out Vapor's [Queues documentation](https://docs.vapor.codes/advanced/queues/) for detailed usage info
+
 ### Example 
 check out the [tests]() for more examples
 
