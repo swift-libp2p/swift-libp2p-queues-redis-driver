@@ -57,7 +57,7 @@ struct JobsRedisDriverTests {
             #endif
         }
     }
-    
+
     /// Ensures that a sample job runs on our asyncTest driver
     @Test func testApplication_TestDriver() async throws {
         let email = Email()
