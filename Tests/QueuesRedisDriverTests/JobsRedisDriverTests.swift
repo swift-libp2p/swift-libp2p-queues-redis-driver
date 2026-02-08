@@ -32,14 +32,13 @@ import struct Redis.RedisKey
 struct JobsRedisDriverTests {
 
     /// This defaults to `localhost:6379`
-    /// - Note: Our PR workflow sets the `REDIS_HOSTNAME` and `REDIS_PORT` ENV values
-    static var redisHost: String {
-        //let host = ProcessInfo.processInfo.environment["REDIS_HOSTNAME"] ?? "redis://localhost"
-        //let port = ProcessInfo.processInfo.environment["REDIS_PORT"] ?? "6379"
-        //return "\(host):\(port)"
-        "redis://localhost:6379"
-    }
-
+    /// - Note: Github CI Workflows
+    ///     - Our PR workflow sets the `REDIS_HOSTNAME` and `REDIS_PORT` ENV values
+    ///     - ENV values are disregarded on MacOS CI runners
+    /// - Note: We use a redis conf (instead of a url) due to the url parser throwing an InvalidRedisURL error
+    ///     - `redis://redis:6379`          --> Error Invalid Redis URL
+    ///     - `redis://localhost:6379` --> OK
+    ///     - `redis://127.0.0.1:6379` --> OK
     static var redisConf: RedisConfiguration {
         get throws {
             #if os(Linux)
@@ -94,7 +93,6 @@ struct JobsRedisDriverTests {
         let email = Email()
 
         func configure(_ app: Application) async throws {
-            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(email)
 
@@ -131,7 +129,6 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(failedJob)
 
@@ -173,7 +170,6 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(DelayedJob(recordIssue: false))
 
@@ -217,7 +213,6 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
             try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(DelayedJob(recordIssue: true))
 
@@ -275,6 +270,7 @@ struct JobsRedisDriverTests {
             RedisKey("libp2p_queues[default]"),
             RedisKey("libp2p_queues[default]-processing"),
         ])
+        #expect(deleted >= 0)
     }
 }
 
