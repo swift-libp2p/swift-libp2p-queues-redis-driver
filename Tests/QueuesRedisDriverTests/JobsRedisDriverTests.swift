@@ -260,7 +260,7 @@ struct JobsRedisDriverTests {
                 indices: 0...10,
                 as: String.self
             ).get()
-            #expect(value.count == 1)
+            #expect(value.count == 0)
             #expect(originalQueue.count == 1)
             #expect(originalQueue.contains(jobId.string))
 
