@@ -40,6 +40,24 @@ struct JobsRedisDriverTests {
         "redis://localhost:6379"
     }
 
+    static var redisConf: RedisConfiguration {
+        get throws {
+            #if os(Linux)
+            return try RedisConfiguration(
+                hostname: Environment.get("REDIS_HOSTNAME") ?? "localhost",
+                port: Environment.get("REDIS_PORT")?.int ?? 6379,
+                pool: .init(connectionRetryTimeout: .milliseconds(100))
+            )
+            #else
+            return try RedisConfiguration(
+                hostname: "localhost",
+                port: 6379,
+                pool: .init(connectionRetryTimeout: .milliseconds(100))
+            )
+            #endif
+        }
+    }
+    
     /// Ensures that a sample job runs on our asyncTest driver
     @Test func testApplication_TestDriver() async throws {
         let email = Email()
@@ -76,7 +94,8 @@ struct JobsRedisDriverTests {
         let email = Email()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(email)
 
             app.on("send-email") { req -> Response<String> in
@@ -112,7 +131,8 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(failedJob)
 
             app.on("test") { req -> Response<String> in
@@ -153,7 +173,8 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(DelayedJob(recordIssue: false))
 
             app.on("delay-job") { req -> Response<String> in
@@ -196,7 +217,8 @@ struct JobsRedisDriverTests {
         let jobId = JobIdentifier()
 
         func configure(_ app: Application) async throws {
-            try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            //try app.queues.use(.redis(url: JobsRedisDriverTests.redisHost))
+            try app.queues.use(.redis(JobsRedisDriverTests.redisConf))
             app.queues.add(DelayedJob(recordIssue: true))
 
             app.on("delay-job") { req -> Response<String> in
