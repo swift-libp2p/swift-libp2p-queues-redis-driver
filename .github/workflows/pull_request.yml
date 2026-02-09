@@ -4,6 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled, ready_for_review]
   workflow_dispatch:
+  workflow_call:
 
 env:
   LOG_LEVEL: info
