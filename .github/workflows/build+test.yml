@@ -8,4 +8,4 @@ on:
 jobs:
   tests:
     name: Tests
-    uses: swift-libp2p/github-workflows/.github/workflows/build+test.yml@main
+    uses: swift-libp2p/swift-libp2p-queues-redis-driver/.github/workflows/pull_request.yml@main
