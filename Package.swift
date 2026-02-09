@@ -31,11 +31,11 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // LibP2P
-        .package(url: "https://github.com/swift-libp2p/swift-libp2p.git", branch: "main"),
+        .package(url: "https://github.com/swift-libp2p/swift-libp2p.git", .upToNextMinor(from: "0.3.4")),
         // Queues
-        .package(url: "https://github.com/swift-libp2p/swift-libp2p-queues.git", branch: "main"),
+        .package(url: "https://github.com/swift-libp2p/swift-libp2p-queues.git", .upToNextMinor(from: "0.0.2")),
         // Redis
-        .package(url: "https://github.com/swift-libp2p/swift-libp2p-redis.git", branch: "main"),
+        .package(url: "https://github.com/swift-libp2p/swift-libp2p-redis.git", .upToNextMinor(from: "0.0.2")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
