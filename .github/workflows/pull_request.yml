@@ -29,8 +29,8 @@ jobs:
         container:
           - swift:6.1-noble
           - swift:6.2-noble
-          - swift:6-3-noble
-          - swift:6-4-noble
+          - swift:6.3-noble
+          - swift:6.4-noble
         redis:
           - redis:8
     runs-on: ubuntu-latest
